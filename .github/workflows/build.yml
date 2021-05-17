@@ -4,25 +4,33 @@ on:
     branches:
       - main
   schedule:
-    - cron: '30 14 * * 5' # Weekly on Fridays at 14:30
+    - cron: '30 9 * * 1' # Weekly on Mondays at 09:30
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      IMAGE: 'jre'
+      REPO: 'ukhomeofficedigital/jre'
     steps:
       - uses: actions/checkout@main
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag ${{ env.IMAGE }}:latest
+      - uses: anchore/scan-action@main
         with:
+          image: "${{ env.IMAGE }}:latest"
+          fail-build: false
+          severity-cutoff: critical
+      - name: Publish to Docker Registry
+        uses: elgohr/Publish-Docker-Github-Action@main
+        with:
+          name: ${{ env.REPO}}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          platforms: linux/amd64,linux/arm64/v8
+          registry: quay.io
+          cache: true
+          snapshot: true
           tags: "UKHomeOffice/jre:latest,UKHomeOffice/jre:${{ github.sha }}"
