@@ -33,4 +33,4 @@ jobs:
           registry: quay.io
           cache: true
           snapshot: true
-          tags: "UKHomeOffice/jre:latest,UKHomeOffice/jre:${{ github.sha }}"
+          tags: "${{ github.sha }}"
