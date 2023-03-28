@@ -25,7 +25,7 @@ jobs:
           fail-build: false
           severity-cutoff: critical
       - name: Publish to Docker Registry
-        uses: elgohr/Publish-Docker-Github-Action@main
+        uses: elgohr/Publish-Docker-Github-Action@v5
         with:
           name: ${{ env.REPO}}
           username: ${{ secrets.DOCKER_USERNAME }}
